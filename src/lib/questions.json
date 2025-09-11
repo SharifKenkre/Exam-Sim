@@ -1,0 +1,90 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "text": "What is the SI unit of force?",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Laws of Motion",
+      "difficulty": "Easy",
+      "options": ["Joule", "Watt", "Newton", "Pascal"],
+      "correctAnswer": "Newton"
+    },
+    {
+      "id": 2,
+      "text": "A body of mass 5 kg is moving with a velocity of 10 m/s. What is its kinetic energy?",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Work, Energy and Power",
+      "difficulty": "Easy",
+      "options": ["250 J", "50 J", "500 J", "100 J"],
+      "correctAnswer": "250 J"
+    },
+    {
+      "id": 3,
+      "text": "According to the diagram, what is the equivalent resistance between points A and B if all resistors are 10Ω?",
+      "image": "https://picsum.photos/seed/circuits/600/400",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Current Electricity",
+      "difficulty": "Medium",
+      "options": ["10 Ω", "20 Ω", "30 Ω", "40 Ω"],
+      "correctAnswer": "10 Ω"
+    },
+    {
+      "id": 5,
+      "text": "What is the principle of conservation of energy?",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Work, Energy and Power",
+      "difficulty": "Medium",
+      "options": [
+        "Energy can be created but not destroyed",
+        "Energy can be destroyed but not created",
+        "Energy can neither be created nor destroyed, only transformed",
+        "Energy is always constant in a closed system"
+      ],
+      "correctAnswer": "Energy can neither be created nor destroyed, only transformed"
+    },
+    {
+      "id": 6,
+      "text": "Which of the following is a vector quantity?",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Vectors",
+      "difficulty": "Easy",
+      "options": ["Speed", "Distance", "Mass", "Velocity"],
+      "correctAnswer": "Velocity"
+    },
+    {
+      "id": 7,
+      "text": "An object is dropped from a height of 20m. What is its velocity just before it hits the ground? (Assume g = 9.8 m/s² and neglect air resistance)",
+      "type": "MCQ",
+      "subject": "Physics",
+      "chapter": "Motion in a Straight Line",
+      "difficulty": "Hard",
+      "options": ["19.8 m/s", "196 m/s", "14 m/s", "20 m/s"],
+      "correctAnswer": "19.8 m/s"
+    },
+    {
+      "id": 8,
+      "text": "What is the chemical formula for water?",
+      "type": "MCQ",
+      "subject": "Chemistry",
+      "chapter": "Basics",
+      "difficulty": "Easy",
+      "options": ["H2O", "CO2", "O2", "H2"],
+      "correctAnswer": "H2O"
+    },
+    {
+      "id": 9,
+      "text": "Who is known as the father of modern chemistry?",
+      "type": "MCQ",
+      "subject": "Chemistry",
+      "chapter": "History",
+      "difficulty": "Easy",
+      "options": ["Antoine Lavoisier", "John Dalton", "Dmitri Mendeleev", "Marie Curie"],
+      "correctAnswer": "Antoine Lavoisier"
+    }
+  ]
+}

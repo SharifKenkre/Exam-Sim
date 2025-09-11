@@ -1,3 +1,11 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "physics-diagram-1",
+      "description": "Diagram for a physics problem about circuits",
+      "imageUrl": "https://picsum.photos/seed/circuits/600/400",
+      "imageHint": "circuit diagram"
+    }
+  ]
 }

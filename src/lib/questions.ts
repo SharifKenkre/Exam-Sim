@@ -33,15 +33,6 @@ export const questions: Question[] = [
     correctAnswer: '10 Ω',
   },
   {
-    id: 4,
-    text: 'Explain Newton\'s Second Law of Motion in your own words.',
-    type: 'Subjective',
-    subject: 'Physics',
-    chapter: 'Laws of Motion',
-    difficulty: 'Medium',
-    correctAnswer: 'Newton\'s Second Law of Motion states that the rate of change of momentum of a body is directly proportional to the force applied, and this change in momentum takes place in the direction of the applied force. It is mathematically expressed as F = ma, where F is force, m is mass, and a is acceleration.',
-  },
-  {
     id: 5,
     text: 'What is the principle of conservation of energy?',
     type: 'MCQ',
@@ -76,4 +67,24 @@ export const questions: Question[] = [
     options: ['19.8 m/s', '196 m/s', '14 m/s', '20 m/s'],
     correctAnswer: '19.8 m/s',
   },
+  {
+    id: 8,
+    text: 'What is the chemical formula for water?',
+    type: 'MCQ',
+    subject: 'Chemistry',
+    chapter: 'Basics',
+    difficulty: 'Easy',
+    options: ['H2O', 'CO2', 'O2', 'H2'],
+    correctAnswer: 'H2O',
+  },
+  {
+    id: 9,
+    text: 'Who is known as the father of modern chemistry?',
+    type: 'MCQ',
+    subject: 'Chemistry',
+    chapter: 'History',
+    difficulty: 'Easy',
+    options: ['Antoine Lavoisier', 'John Dalton', 'Dmitri Mendeleev', 'Marie Curie'],
+    correctAnswer: 'Antoine Lavoisier',
+  }
 ];

@@ -5,6 +5,7 @@ import type { Question, AnswerStatus } from '@/lib/types';
 import ExamHeader from '@/components/exam/ExamHeader';
 import QuestionPanel from '@/components/exam/QuestionPanel';
 import NavigationPanel from '@/components/exam/NavigationPanel';
+import ResultsScreen from '@/components/exam/ResultsScreen';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,16 +15,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
+import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 
 interface ExamClientProps {
   questions: Question[];
   totalTime: number; // in seconds
+  onRestart: () => void;
 }
 
-export function ExamClient({ questions, totalTime }: ExamClientProps) {
+export function ExamClient({ questions, totalTime, onRestart }: ExamClientProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, AnswerStatus>>(() => {
     const initialAnswers = new Map<number, AnswerStatus>();
@@ -45,7 +47,12 @@ export function ExamClient({ questions, totalTime }: ExamClientProps) {
   const [isExamFinished, setIsExamFinished] = useState(false);
 
   useEffect(() => {
-    if (timeLeft <= 0 || isExamFinished) return;
+    if (timeLeft <= 0 || isExamFinished) {
+      if(timeLeft <= 0) {
+        handleFinishExam();
+      }
+      return;
+    };
     const timer = setInterval(() => {
       setTimeLeft(prevTime => prevTime - 1);
     }, 1000);
@@ -85,11 +92,7 @@ export function ExamClient({ questions, totalTime }: ExamClientProps) {
   
   if (isExamFinished) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-            <h1 className="text-3xl font-bold mb-4">Exam Submitted</h1>
-            <p className="text-muted-foreground">Thank you for completing the exam.</p>
-            {/* Here you could show a summary of results */}
-        </div>
+        <ResultsScreen questions={questions} answers={answers} onRestart={onRestart} />
     );
   }
 

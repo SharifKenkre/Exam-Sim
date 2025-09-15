@@ -56,6 +56,7 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
         ? prev.filter(c => c !== chapter) 
         : [...prev, chapter]
     );
+    setOpenChapterSelector(true);
   };
 
   const handleStartClick = () => {
@@ -158,10 +159,9 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
                       {chapters.map(chapter => (
                         <CommandItem
                           key={chapter}
-                          value={chapter}
-                          onSelect={(currentValue) => {
-                            handleChapterSelect(currentValue === chapter ? chapter : currentValue);
-                            setOpenChapterSelector(true);
+                          onSelect={() => {
+                            handleChapterSelect(chapter);
+                            setOpenChapterSelector(false);
                           }}
                         >
                           <Check

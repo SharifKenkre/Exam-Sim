@@ -37,9 +37,11 @@ export function ExamClient({ questions, totalTime, onRestart }: ExamClientProps)
       });
     });
     // Mark first question as visited
-    const firstQuestionStatus = initialAnswers.get(questions[0].id);
-    if(firstQuestionStatus) {
-      initialAnswers.set(questions[0].id, { ...firstQuestionStatus, isVisited: true });
+    if (questions.length > 0) {
+      const firstQuestionStatus = initialAnswers.get(questions[0].id);
+      if(firstQuestionStatus) {
+        initialAnswers.set(questions[0].id, { ...firstQuestionStatus, isVisited: true });
+      }
     }
     return initialAnswers;
   });
@@ -96,6 +98,15 @@ export function ExamClient({ questions, totalTime, onRestart }: ExamClientProps)
     );
   }
 
+  if (questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-background text-foreground">
+        <p className="text-lg mb-4">No questions available for the selected criteria.</p>
+        <Button onClick={onRestart}>Go Back</Button>
+      </div>
+    );
+  }
+  
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswerStatus = answers.get(currentQuestion.id) || { answer: null, isMarkedForReview: false, isVisited: false };
 
@@ -106,6 +117,7 @@ export function ExamClient({ questions, totalTime, onRestart }: ExamClientProps)
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
           <QuestionPanel
             question={currentQuestion}
+            questionNumber={currentQuestionIndex + 1}
             answerStatus={currentAnswerStatus}
             onAnswerUpdate={updateAnswer}
             onNext={goToNextQuestion}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Difficulty } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { questions } from '@/lib/questions';
 
 
 export interface ExamConfig {
@@ -34,13 +35,36 @@ interface ExamCustomizationProps {
 
 const difficultyLevels: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
-export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam, onBack }: ExamCustomizationProps) {
-  const [numQuestions, setNumQuestions] = useState(Math.min(10, maxQuestions));
+export function ExamCustomization({ subject, maxQuestions: initialMaxQuestions, onStartExam, onBack }: ExamCustomizationProps) {
+  const [numQuestions, setNumQuestions] = useState(Math.min(10, initialMaxQuestions));
   const [totalTime, setTotalTime] = useState(30);
-  const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>(['Easy', 'Medium']);
+  const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
   const [questionOrder, setQuestionOrder] = useState<'easy-first' | 'hard-first' | 'mixed'>('mixed');
   const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [openChapterSelector, setOpenChapterSelector] = useState(false);
+
+  const availableChapters = useMemo(() => 
+    [...new Set(questions
+      .filter(q => q.subject === subject && q.chapter)
+      .map(q => q.chapter!)
+    )], 
+  [subject]);
+
+  const maxQuestions = useMemo(() => {
+    return questions.filter(q => {
+      const subjectMatch = q.subject === subject;
+      const difficultyMatch = selectedDifficulties.length === 0 || selectedDifficulties.includes(q.difficulty);
+      const chapterMatch = selectedChapters.length === 0 || (q.chapter && selectedChapters.includes(q.chapter));
+      return subjectMatch && difficultyMatch && chapterMatch;
+    }).length;
+  }, [subject, selectedDifficulties, selectedChapters]);
+
+  // Adjust numQuestions if it exceeds the new maxQuestions
+  React.useEffect(() => {
+    if (numQuestions > maxQuestions) {
+      setNumQuestions(maxQuestions);
+    }
+  }, [maxQuestions, numQuestions]);
 
   const handleDifficultyChange = (difficulty: Difficulty) => {
     setSelectedDifficulties(prev => 
@@ -51,16 +75,17 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
   };
   
   const handleChapterSelect = (chapter: string) => {
-    setSelectedChapters(prev => 
-      prev.includes(chapter) 
-        ? prev.filter(c => c !== chapter) 
-        : [...prev, chapter]
-    );
+    setSelectedChapters(prev => {
+      const newSelected = prev.includes(chapter)
+        ? prev.filter(c => c !== chapter)
+        : [...prev, chapter];
+      return newSelected;
+    });
   };
 
   const handleStartClick = () => {
     onStartExam({
-      numQuestions,
+      numQuestions: Math.min(numQuestions, maxQuestions),
       totalTime,
       difficulties: selectedDifficulties,
       questionOrder,
@@ -88,10 +113,11 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
             <Slider
               id="num-questions"
               min={1}
-              max={maxQuestions}
+              max={maxQuestions > 0 ? maxQuestions : 1}
               step={1}
               value={[numQuestions]}
               onValueChange={(value) => setNumQuestions(value[0])}
+              disabled={maxQuestions === 0}
             />
           </div>
           <div className="space-y-4">
@@ -106,7 +132,7 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
             />
           </div>
           <div className="space-y-4">
-            <Label>Difficulty Level (select at least one)</Label>
+            <Label>Difficulty Level</Label>
             <div className="flex items-center gap-4">
               {difficultyLevels.map(level => (
                 <div key={level} className="flex items-center space-x-2">
@@ -115,10 +141,11 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
                     checked={selectedDifficulties.includes(level)}
                     onCheckedChange={() => handleDifficultyChange(level)}
                   />
-                  <Label htmlFor={`diff-${level}`}>{level}</Label>
+                  <Label htmlFor={`diff-${level}`} className="font-normal">{level}</Label>
                 </div>
               ))}
             </div>
+             <p className="text-xs text-muted-foreground">Select none to include all difficulties.</p>
           </div>
           <div className="space-y-4">
             <Label htmlFor="question-order">Question Order</Label>
@@ -134,7 +161,7 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
             </Select>
           </div>
           <div className="space-y-4 md:col-span-2">
-            <Label>Chapters (optional)</Label>
+            <Label>Chapters</Label>
             <Popover open={openChapterSelector} onOpenChange={setOpenChapterSelector}>
               <PopoverTrigger asChild>
                 <Button
@@ -144,7 +171,7 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
                   className="w-full justify-between font-normal"
                 >
                   <span className="truncate">
-                    {selectedChapters.length > 0 ? `${selectedChapters.length} chapter(s) selected` : "Select chapters..."}
+                    {selectedChapters.length > 0 ? `${selectedChapters.length} chapter(s) selected` : "Select chapters... (optional)"}
                   </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -155,13 +182,13 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
                   <CommandList>
                     <CommandEmpty>No chapters found.</CommandEmpty>
                     <CommandGroup>
-                      {chapters.map(chapter => (
+                      {availableChapters.map(chapter => (
                         <CommandItem
                           key={chapter}
-                          value={chapter}
-                          onSelect={(currentValue) => {
-                            handleChapterSelect(currentValue);
+                          onSelect={() => {
+                            handleChapterSelect(chapter)
                           }}
+                          className="cursor-pointer"
                         >
                           <Check
                             className={cn(
@@ -177,15 +204,16 @@ export function ExamCustomization({ subject, chapters, maxQuestions, onStartExam
                 </Command>
               </PopoverContent>
             </Popover>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 min-h-[20px]">
                 {selectedChapters.map(chapter => (
-                    <Badge key={chapter} variant="secondary">{chapter}</Badge>
+                    <Badge key={chapter} variant="secondary" className="font-normal">{chapter}</Badge>
                 ))}
             </div>
+             <p className="text-xs text-muted-foreground">Select none to include all chapters.</p>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end pt-6">
-          <Button onClick={handleStartClick} disabled={selectedDifficulties.length === 0}>
+          <Button onClick={handleStartClick} disabled={maxQuestions === 0}>
             Start Exam
           </Button>
         </CardFooter>

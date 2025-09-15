@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface QuestionPanelProps {
   question: Question;
+  questionNumber: number;
   answerStatus: AnswerStatus;
   onAnswerUpdate: (questionId: number, answer: string | null, isMarkedForReview: boolean) => void;
   onNext: () => void;
@@ -81,7 +82,7 @@ const AIPoweredCheck = ({ question, onAnswerUpdate }: { question: Question; onAn
     );
 };
 
-export default function QuestionPanel({ question, answerStatus, onAnswerUpdate, onNext, isLastQuestion }: QuestionPanelProps) {
+export default function QuestionPanel({ question, questionNumber, answerStatus, onAnswerUpdate, onNext, isLastQuestion }: QuestionPanelProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(answerStatus.answer);
   const [isMarked, setIsMarked] = useState(answerStatus.isMarkedForReview);
 
@@ -103,7 +104,7 @@ export default function QuestionPanel({ question, answerStatus, onAnswerUpdate, 
   return (
     <Card className="h-full flex flex-col transition-all duration-300 animate-in fade-in-50" key={question.id}>
       <CardHeader>
-        <h2 className="text-xl font-semibold">Question {question.id}</h2>
+        <h2 className="text-xl font-semibold">Question {questionNumber}</h2>
         <p className="text-muted-foreground whitespace-pre-wrap">{question.text}</p>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">

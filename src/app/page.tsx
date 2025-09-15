@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ExamClient } from '@/components/exam/ExamClient';
 import { SubjectSelection } from '@/components/exam/SubjectSelection';
 import { ExamCustomization, type ExamConfig } from '@/components/exam/ExamCustomization';
-import { questions as allQuestions } from '@/lib/questions';
+import { questions } from '@/lib/questions';
 import type { Question } from '@/lib/types';
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
   const [examQuestions, setExamQuestions] = useState<Question[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
 
-  const subjects = [...new Set(allQuestions.map(q => q.subject))];
+  const subjects = useMemo(() => [...new Set(questions.map(q => q.subject))], []);
 
   const handleSubjectSelect = (subject: string) => {
     setSelectedSubject(subject);
@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   const handleStartExam = (config: ExamConfig) => {
-    let filteredQuestions = allQuestions.filter(q => q.subject === selectedSubject);
+    let filteredQuestions = questions.filter(q => q.subject === selectedSubject);
 
     // Filter by difficulty
     if (config.difficulties.length > 0) {
@@ -30,7 +30,9 @@ export default function Home() {
 
     // Filter by chapter
     if (config.chapters.length > 0) {
-      filteredQuestions = filteredQuestions.filter(q => config.chapters.includes(q.chapter));
+      filteredQuestions = filteredQuestions.filter(q => {
+        return q.chapter && config.chapters.includes(q.chapter);
+      });
     }
     
     // Sort questions
@@ -45,7 +47,10 @@ export default function Home() {
         return difficultyOrder[b.difficulty] - difficultyOrder[a.difficulty];
       });
     } else { // mixed
-      filteredQuestions.sort(() => Math.random() - 0.5);
+      // Create a copy of the array before sorting to avoid modifying the original
+      let tempQuestions = [...filteredQuestions];
+      tempQuestions.sort(() => Math.random() - 0.5);
+      filteredQuestions = tempQuestions;
     }
     
     // Limit number of questions
@@ -73,8 +78,8 @@ export default function Home() {
   }
 
   if (currentScreen === 'examCustomization' && selectedSubject) {
-    const availableChapters = [...new Set(allQuestions.filter(q => q.subject === selectedSubject).map(q => q.chapter))];
-    const maxQuestions = allQuestions.filter(q => q.subject === selectedSubject).length;
+    const availableChapters = [...new Set(questions.filter(q => q.subject === selectedSubject && q.chapter).map(q => q.chapter!))];
+    const maxQuestions = questions.filter(q => q.subject === selectedSubject).length;
     return <ExamCustomization subject={selectedSubject} chapters={availableChapters} maxQuestions={maxQuestions} onStartExam={handleStartExam} onBack={handleBackToSubject} />;
   }
   

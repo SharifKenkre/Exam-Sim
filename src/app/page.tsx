@@ -4,9 +4,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { ExamClient } from '@/components/exam/ExamClient';
 import { SubjectSelection } from '@/components/exam/SubjectSelection';
 import { ExamCustomization, type ExamConfig } from '@/components/exam/ExamCustomization';
-import { getQuestions } from '@/lib/firestore';
 import type { Question } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import allQuestions from '@/lib/questions.json';
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -17,18 +17,9 @@ export default function Home() {
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const fetchedQuestions = await getQuestions();
-        setQuestions(fetchedQuestions);
-      } catch (error) {
-        console.error("Failed to fetch questions:", error);
-        // Handle error appropriately, maybe show a toast
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchQuestions();
+    // In a real app, you might fetch this data. For now, we'll use the imported JSON.
+    setQuestions(allQuestions.questions as Question[]);
+    setLoading(false);
   }, []);
 
   const subjects = useMemo(() => [...new Set(questions.map(q => q.subject))], [questions]);

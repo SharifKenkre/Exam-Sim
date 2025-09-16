@@ -12,10 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Check, ChevronsUpDown, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Difficulty } from '@/lib/types';
+import type { Difficulty, Question } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { questions } from '@/lib/questions';
-
 
 export interface ExamConfig {
   numQuestions: number;
@@ -27,16 +25,15 @@ export interface ExamConfig {
 
 interface ExamCustomizationProps {
   subject: string;
-  chapters: string[];
-  maxQuestions: number;
+  questions: Question[];
   onStartExam: (config: ExamConfig) => void;
   onBack: () => void;
 }
 
 const difficultyLevels: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
-export function ExamCustomization({ subject, maxQuestions: initialMaxQuestions, onStartExam, onBack }: ExamCustomizationProps) {
-  const [numQuestions, setNumQuestions] = useState(Math.min(10, initialMaxQuestions));
+export function ExamCustomization({ subject, questions, onStartExam, onBack }: ExamCustomizationProps) {
+  const [numQuestions, setNumQuestions] = useState(10);
   const [totalTime, setTotalTime] = useState(30);
   const [selectedDifficulties, setSelectedDifficulties] = useState<Difficulty[]>([]);
   const [questionOrder, setQuestionOrder] = useState<'easy-first' | 'hard-first' | 'mixed'>('mixed');
@@ -48,7 +45,7 @@ export function ExamCustomization({ subject, maxQuestions: initialMaxQuestions, 
       .filter(q => q.subject === subject && q.chapter)
       .map(q => q.chapter!)
     )], 
-  [subject]);
+  [subject, questions]);
 
   const maxQuestions = useMemo(() => {
     return questions.filter(q => {
@@ -57,9 +54,13 @@ export function ExamCustomization({ subject, maxQuestions: initialMaxQuestions, 
       const chapterMatch = selectedChapters.length === 0 || (q.chapter && selectedChapters.includes(q.chapter));
       return subjectMatch && difficultyMatch && chapterMatch;
     }).length;
-  }, [subject, selectedDifficulties, selectedChapters]);
-
+  }, [subject, selectedDifficulties, selectedChapters, questions]);
+  
   // Adjust numQuestions if it exceeds the new maxQuestions
+  React.useEffect(() => {
+    setNumQuestions(Math.min(10, maxQuestions));
+  }, [maxQuestions]);
+
   React.useEffect(() => {
     if (numQuestions > maxQuestions) {
       setNumQuestions(maxQuestions);

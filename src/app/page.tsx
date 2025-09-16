@@ -1,19 +1,37 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ExamClient } from '@/components/exam/ExamClient';
 import { SubjectSelection } from '@/components/exam/SubjectSelection';
 import { ExamCustomization, type ExamConfig } from '@/components/exam/ExamCustomization';
-import { questions } from '@/lib/questions';
+import { getQuestions } from '@/lib/firestore';
 import type { Question } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 export default function Home() {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentScreen, setCurrentScreen] = useState('subjectSelection');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [examQuestions, setExamQuestions] = useState<Question[]>([]);
   const [examConfig, setExamConfig] = useState<ExamConfig | null>(null);
 
-  const subjects = useMemo(() => [...new Set(questions.map(q => q.subject))], []);
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const fetchedQuestions = await getQuestions();
+        setQuestions(fetchedQuestions);
+      } catch (error) {
+        console.error("Failed to fetch questions:", error);
+        // Handle error appropriately, maybe show a toast
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuestions();
+  }, []);
+
+  const subjects = useMemo(() => [...new Set(questions.map(q => q.subject))], [questions]);
 
   const handleSubjectSelect = (subject: string) => {
     setSelectedSubject(subject);
@@ -73,14 +91,26 @@ export default function Home() {
     setSelectedSubject(null);
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-background text-foreground">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4 text-lg">Loading questions...</p>
+      </div>
+    );
+  }
+
   if (currentScreen === 'subjectSelection') {
     return <SubjectSelection subjects={subjects} onSubjectSelect={handleSubjectSelect} />;
   }
 
   if (currentScreen === 'examCustomization' && selectedSubject) {
-    const availableChapters = [...new Set(questions.filter(q => q.subject === selectedSubject && q.chapter).map(q => q.chapter!))];
-    const maxQuestions = questions.filter(q => q.subject === selectedSubject).length;
-    return <ExamCustomization subject={selectedSubject} chapters={availableChapters} maxQuestions={maxQuestions} onStartExam={handleStartExam} onBack={handleBackToSubject} />;
+    return <ExamCustomization 
+              subject={selectedSubject} 
+              questions={questions}
+              onStartExam={handleStartExam} 
+              onBack={handleBackToSubject} 
+           />;
   }
   
   if (currentScreen === 'exam' && examConfig) {

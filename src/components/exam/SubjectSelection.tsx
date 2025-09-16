@@ -21,6 +21,13 @@ const getSubjectIcon = (subject: string) => {
 }
 
 export function SubjectSelection({ subjects, onSubjectSelect }: SubjectSelectionProps) {
+  const handleKeyDown = (subject: string) => (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+      event.preventDefault();
+      onSubjectSelect(subject);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
         <div className="text-center mb-10">
@@ -30,10 +37,13 @@ export function SubjectSelection({ subjects, onSubjectSelect }: SubjectSelection
       <div className="w-full max-w-3xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {subjects.map((subject) => (
-                <Card 
+                <Card
                     key={subject}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSubjectSelect(subject)}
-                    className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-transparent hover:border-primary"
+                    onKeyDown={handleKeyDown(subject)}
+                    className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-transparent hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <CardContent className="flex flex-col items-center justify-center p-6 text-center">
                         <div className="mb-4 p-4 bg-primary/10 rounded-full transition-colors duration-300 group-hover:bg-primary/20">
